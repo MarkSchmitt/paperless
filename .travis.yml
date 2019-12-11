@@ -6,8 +6,12 @@ before_install:
 
 sudo: false
 
+arch:
+  - amd64
+  - arm64
+
 matrix:
-    include:        
+    include:
         - python: "3.5"
         - python: "3.6"
         - python: "3.7-dev"
@@ -23,7 +27,7 @@ matrix:
           install:
             - true
           script:
-            - docker build --tag=the-paperless-project/paperless .
+            - docker build --tag=moztr/paperless-travis:$TRAVIS_CPU_ARCH .
           after_success:
             - true
 
