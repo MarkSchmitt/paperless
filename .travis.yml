@@ -6,16 +6,8 @@ before_install:
 
 sudo: false
 
-arch:
-  - amd64
-  - arm64
-
 matrix:
     include:
-        - os: linux
-          arch: amd64
-        - os: linux
-          arch: arm64
         - python: "3.5"
         - python: "3.6"
         - python: "3.7-dev"
@@ -31,7 +23,10 @@ matrix:
           install:
             - true
           script:
-            - docker build --tag=moztr/paperless-travis:$TRAVIS_CPU_ARCH .
+            - docker run --rm --privileged multiarch/qemu-user-static:register --reset
+            - docker build -f Dockerfile.amd64v8 --tag=moztr/paperless-travis:amd64v8 .
+            - docker build -f Dockerfile.arm32v7 --tag=moztr/paperless-travis:arm32v7 .
+            - docker build -f Dockerfile.amd64 --tag=moztr/paperless-travis:amd64 .
           after_success:
             - true
 
@@ -61,4 +56,10 @@ deploy:
     script: ci/deploy-docker
     on:
       branch: master
+      condition: '"${BUILD_DOCKER}" = 1'
+  - provider: script
+    skip_cleanup: true
+    script: ci/deploy-docker
+    on:
+      branch: "feature/multi-arch-docker-build"
       condition: '"${BUILD_DOCKER}" = 1'
