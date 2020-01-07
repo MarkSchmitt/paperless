@@ -25,7 +25,7 @@ matrix:
           script:
             - docker run --rm --privileged multiarch/qemu-user-static:register --reset
             - docker build -f Dockerfile.amd64 --tag=moztr/paperless-travis:amd64 .
-            - docker build -f Dockerfile.amd64v8 --tag=moztr/paperless-travis:arm64v8 .
+            - docker build -f Dockerfile.arm64v8 --tag=moztr/paperless-travis:arm64v8 .
             - docker build -f Dockerfile.arm32v7 --tag=moztr/paperless-travis:arm32v7 .
           after_success:
             - true
