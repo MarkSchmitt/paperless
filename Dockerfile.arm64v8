@@ -1,4 +1,6 @@
-FROM alpine@sha256:aec3cf8ea78f690acc18450304f23e9dae4cc33d346597eb036e33a66d8da085
+FROM alpine@sha256:1827be57ca85c28287d18349bbfdb3870419692656cb67c4cd0f5042f0f63aec
+# That should reference a v3.10.3 aarch64 image. we require the sha256 because running docker on amd64 will try to pull in the amd64
+# one - but we need to pull the arm64v8 one instead and use qemu to emulate it
 
 COPY qemu-aarch64-static /usr/bin/
 
