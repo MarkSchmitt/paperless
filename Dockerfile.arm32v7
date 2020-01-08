@@ -1,4 +1,5 @@
 FROM alpine@sha256:915a0447d045e3b55f84e8456de861571200ee39f38a0ce70a45f91c29491a21
+# Use the v3.10.3 image for arm32
 
 COPY qemu-arm-static /usr/bin/
 
