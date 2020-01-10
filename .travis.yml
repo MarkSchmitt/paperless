@@ -18,21 +18,39 @@ matrix:
             # * DOCKER_PASSWORD, to be encrypted, use `travis encrypt DOCKER_PASSWORD=<password>`
           services:
             - docker
-          before_install:
-            - true
-          install:
-            - true
           script:
             - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
             - docker run --rm --privileged multiarch/qemu-user-static:register --reset
             - docker build -f Dockerfile.amd64 --tag=moztr/paperless-travis:amd64 .
             - docker push moztr/paperless-travis:amd64
+          stage: build_docker
+        - stage: build_docker
+          services:
+            - docker
+          script:
+            - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            - docker run --rm --privileged multiarch/qemu-user-static:register --reset
             - travis_wait 60 docker build -f Dockerfile.arm64v8 --tag=moztr/paperless-travis:arm64v8 .
             - docker push moztr/paperless-travis:arm64v8
+        - stage: build_docker
+          services:
+            - docker
+          script:
+            - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            - docker run --rm --privileged multiarch/qemu-user-static:register --reset
             - travis_wait 60 docker build -f Dockerfile.arm32v7 --tag=moztr/paperless-travis:arm32v7 .
             - docker push moztr/paperless-travis:arm32v7
-          after_success:
-            - true
+        - stage: publish_manifest
+          services:
+            - docker
+          script:
+            - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            - mkdir ~/.docker || echo "exists already, ok"
+            - 'echo "{ \"experimental\" : \"enabled\" }" > ~/docker/config.json'
+            - docker manifest create moztr/paperless-travis:latest moztr/paperless-travis:amd64 moztr/paperless-travis:arm64v8 moztr/paperless-travis:arm32v7
+            - docker manifest annotate moztr/paperless-travis:latest moztr/paperless-travis:arm32v7 --os linux --arch arm
+            - docker manifest annotate moztr/paperless-travis:latest moztr/paperless-travis:arm64v8 --os linux --arch arm64 --variant v8
+            - docker manifest push --purge moztr/paperless-travis:latest
 
 install:
     - pip install --upgrade pip pipenv sphinx
