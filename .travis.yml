@@ -29,9 +29,9 @@ matrix:
             - docker
           script:
             - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-            - docker run --rm --privileged multiarch/qemu-user-static:register --reset
-            - travis_wait 60 docker build -f Dockerfile.arm64v8 --tag=moztr/paperless-travis:arm64v8 .
+            - travis_wait 60 docker build -f Dockerfile --tag=moztr/paperless-travis:arm64v8 .
             - docker push moztr/paperless-travis:arm64v8
+          arch: arm64
         - stage: build_docker
           services:
             - docker
