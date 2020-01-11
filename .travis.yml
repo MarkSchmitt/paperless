@@ -41,7 +41,8 @@ matrix:
             - docker run --rm --privileged multiarch/qemu-user-static:register --reset
             # replace the multi-arch reference with a specific, arm32v7 version. else docker will use the platform specific one,
             # which is amd64.
-            - sed -i s/FROM alpine:3.10/FROM alpine@sha256:915a0447d045e3b55f84e8456de861571200ee39f38a0ce70a45f91c29491a21/g Dockerfile
+            - sed -i 's/FROM alpine:3.10/FROM alpine@sha256:915a0447d045e3b55f84e8456de861571200ee39f38a0ce70a45f91c29491a21/g' Dockerfile
+            - sed -i 's/#REMOVEMEINARM32V7//g' Dockerfile
             - travis_wait 60 docker build -f Dockerfile --tag=moztr/paperless-travis:arm32v7 .
             - docker push moztr/paperless-travis:arm32v7
         - stage: publish_manifest
