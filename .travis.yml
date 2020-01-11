@@ -13,6 +13,7 @@ matrix:
         - python: "3.7-dev"
         - env:
             - BUILD_DOCKER=1
+            - DOCKER_CLI_EXPERIMENTAL=enabled
             # Variable to add to publish the Docker image:
             # * DOCKER_USERNAME
             # * DOCKER_PASSWORD, to be encrypted, use `travis encrypt DOCKER_PASSWORD=<password>`
@@ -21,7 +22,7 @@ matrix:
           script:
             - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
             - docker run --rm --privileged multiarch/qemu-user-static:register --reset
-            - docker build -f Dockerfile.amd64 --tag=moztr/paperless-travis:amd64 .
+            - docker build -f Dockerfile --tag=moztr/paperless-travis:amd64 .
             - docker push moztr/paperless-travis:amd64
           stage: build_docker
         - stage: build_docker
@@ -38,14 +39,17 @@ matrix:
           script:
             - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
             - docker run --rm --privileged multiarch/qemu-user-static:register --reset
-            - travis_wait 60 docker build -f Dockerfile.arm32v7 --tag=moztr/paperless-travis:arm32v7 .
+            # replace the multi-arch reference with a specific, arm32v7 version. else docker will use the platform specific one,
+            # which is amd64.
+            - sed -i s/FROM alpine:3.10/FROM alpine@sha256:915a0447d045e3b55f84e8456de861571200ee39f38a0ce70a45f91c29491a21/g Dockerfile
+            - travis_wait 60 docker build -f Dockerfile --tag=moztr/paperless-travis:arm32v7 .
             - docker push moztr/paperless-travis:arm32v7
         - stage: publish_manifest
+          env:
+            - DOCKER_CLI_EXPERIMENTAL=enabled
           services:
             - docker
           script:
-            - mkdir ~/.docker || echo "exists already, ok"
-            - 'echo "{ \"experimental\" : \"enabled\" }" > ~/.docker/config.json'
             - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
             - docker manifest create moztr/paperless-travis:latest moztr/paperless-travis:amd64 moztr/paperless-travis:arm64v8 moztr/paperless-travis:arm32v7
             - docker manifest annotate moztr/paperless-travis:latest moztr/paperless-travis:arm32v7 --os linux --arch arm
