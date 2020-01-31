@@ -11,21 +11,16 @@ matrix:
         - python: "3.5"
         - python: "3.6"
         - python: "3.7-dev"
-        - env:
-            - BUILD_DOCKER=1
-            - DOCKER_CLI_EXPERIMENTAL=enabled
-            # Variable to add to publish the Docker image:
-            # * DOCKER_USERNAME
-            # * DOCKER_PASSWORD, to be encrypted, use `travis encrypt DOCKER_PASSWORD=<password>`
+        - stage: build_docker
+          name: amd64 docker build
           services:
             - docker
           script:
             - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-            - docker run --rm --privileged multiarch/qemu-user-static:register --reset
             - docker build -f Dockerfile --tag=moztr/paperless-travis:amd64 .
             - docker push moztr/paperless-travis:amd64
-          stage: build_docker
         - stage: build_docker
+          name: arm64v8 docker build
           services:
             - docker
           script:
@@ -34,6 +29,7 @@ matrix:
             - docker push moztr/paperless-travis:arm64v8
           arch: arm64
         - stage: build_docker
+          name: arm32v7 docker build
           services:
             - docker
           script:
@@ -46,6 +42,7 @@ matrix:
             - travis_wait 60 docker build -f Dockerfile --tag=moztr/paperless-travis:arm32v7 .
             - docker push moztr/paperless-travis:arm32v7
         - stage: build_docker
+          name: arm32v6 docker build
           services:
             - docker
           script:
