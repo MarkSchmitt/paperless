@@ -62,8 +62,8 @@ matrix:
           script:
             - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
             - docker manifest create moztr/paperless-travis:latest moztr/paperless-travis:amd64 moztr/paperless-travis:arm64v8 moztr/paperless-travis:arm32v7 moztr/paperless-travis:arm32v6
-            - docker manifest annotate moztr/paperless-travis:latest moztr/paperless-travis:arm32v6 --os linux --arch arm
-            - docker manifest annotate moztr/paperless-travis:latest moztr/paperless-travis:arm32v7 --os linux --arch arm
+            - docker manifest annotate moztr/paperless-travis:latest moztr/paperless-travis:arm32v6 --os linux --arch arm --variant v6
+            - docker manifest annotate moztr/paperless-travis:latest moztr/paperless-travis:arm32v7 --os linux --arch arm --variant v7
             - docker manifest annotate moztr/paperless-travis:latest moztr/paperless-travis:arm64v8 --os linux --arch arm64 --variant v8
             - docker manifest push --purge moztr/paperless-travis:latest
 
