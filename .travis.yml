@@ -38,6 +38,8 @@ matrix:
             - docker run --rm --privileged multiarch/qemu-user-static:register --reset
             # replace the multi-arch reference with a specific, arm32v7 version. else docker will use the platform specific one,
             # which is amd64.
+            - wget https://github.com/multiarch/qemu-user-static/releases/download/v4.2.0-4/qemu-arm-static
+            - chmod +x qemu-arm-static
             - sed -i 's/FROM alpine:3.10/FROM alpine@sha256:2632d6288d34d7175021683f6e363fa7c0fa8866a565eb285e36e3b856545e82/g' Dockerfile
             - sed -i 's/#REMOVEMEINARM32//g' Dockerfile
             - travis_wait 60 docker build -f Dockerfile --tag=${DOCKER_TAG}:arm32v7 .
@@ -52,6 +54,8 @@ matrix:
             - docker run --rm --privileged multiarch/qemu-user-static:register --reset
             # replace the multi-arch reference with a specific, arm32v6 version. else docker will use the platform specific one,
             # which is amd64.
+            - wget https://github.com/multiarch/qemu-user-static/releases/download/v4.2.0-4/qemu-arm-static
+            - chmod +x qemu-arm-static
             - sed -i 's/FROM alpine:3.10/FROM alpine@sha256:9afbfccb806687f6979661622f0c04dc534769e742465b107f84a830cbb8e77a/g' Dockerfile
             # the arm32 qemu binaries work for for both v6 and v7
             - sed -i 's/#REMOVEMEINARM32//g' Dockerfile
