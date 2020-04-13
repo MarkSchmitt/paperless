@@ -18,7 +18,7 @@ matrix:
           script:
             - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
             - docker build -f Dockerfile --tag=${DOCKER_REPO}:${TRAVIS_COMMIT}-amd64 .
-            - docker push ${DOCKER_REPO}:amd64
+            - docker push ${DOCKER_REPO}:${TRAVIS_COMMIT}-amd64
         - stage: build_docker
           name: arm64v8 docker build
           services:
