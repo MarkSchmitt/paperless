@@ -1,9 +1,0 @@
-#!/bin/bash
-
-if [ "${DOCKER_USERNAME}" == "" -o "${DOCKER_PASSWORD}" == "" ]
-then
-    exit 0
-fi
-
-docker login --username=${DOCKER_USERNAME} --password=${DOCKER_PASSWORD}
-docker push moztr/paperless-travis:$TRAVIS_CPU_ARCH
