@@ -1,53 +1,16 @@
 language: python
+
+before_install:
+- sudo apt-get update -qq
+- sudo apt-get install -qq libpoppler-cpp-dev unpaper tesseract-ocr
+
 sudo: false
 
 matrix:
     include:
         - python: "3.5"
-          before_install:
-            - sudo apt-get update -qq
-            - sudo apt-get install -qq libpoppler-cpp-dev unpaper tesseract-ocr
-          install:
-            - pip install --upgrade pip pipenv sphinx
-            - pipenv lock -r > requirements.txt
-            - pip install -r requirements.txt
-          script:
-            - cd src/
-            - pytest --cov
-            - pycodestyle
-            - sphinx-build -b html ../docs ../docs/_build -W
-          after_success:
-            - coveralls
         - python: "3.6"
-          before_install:
-            - sudo apt-get update -qq
-            - sudo apt-get install -qq libpoppler-cpp-dev unpaper tesseract-ocr
-          install:
-            - pip install --upgrade pip pipenv sphinx
-            - pipenv lock -r > requirements.txt
-            - pip install -r requirements.txt
-          script:
-            - cd src/
-            - pytest --cov
-            - pycodestyle
-            - sphinx-build -b html ../docs ../docs/_build -W
-          after_success:
-            - coveralls
         - python: "3.7-dev"
-          before_install:
-            - sudo apt-get update -qq
-            - sudo apt-get install -qq libpoppler-cpp-dev unpaper tesseract-ocr
-          install:
-            - pip install --upgrade pip pipenv sphinx
-            - pipenv lock -r > requirements.txt
-            - pip install -r requirements.txt
-          script:
-            - cd src/
-            - pytest --cov
-            - pycodestyle
-            - sphinx-build -b html ../docs ../docs/_build -W
-          after_success:
-            - coveralls
         - stage: build_docker
           name: amd64 docker build
           services:
@@ -132,3 +95,36 @@ matrix:
               else
                 echo "Not a tag and not on master, so not pushing tag/master specific manifest"
               fi
+install:
+    - pip install --upgrade pip pipenv sphinx
+    - pipenv lock -r > requirements.txt
+    - pip install -r requirements.txt
+
+script:
+    - cd src/
+    - pytest --cov
+    - pycodestyle
+    - sphinx-build -b html ../docs ../docs/_build -W
+
+after_success:
+  - coveralls
+
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: ci/deploy-docker
+    on:
+      tags: true
+      condition: '"${BUILD_DOCKER}" = 1'
+  - provider: script
+    skip_cleanup: true
+    script: ci/deploy-docker
+    on:
+      branch: master
+      condition: '"${BUILD_DOCKER}" = 1'
+  - provider: script
+    skip_cleanup: true
+    script: ci/deploy-docker
+    on:
+      branch: "feature/multi-arch-docker-build"
+      condition: '"${BUILD_DOCKER}" = 1'
