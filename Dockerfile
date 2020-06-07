@@ -1,8 +1,5 @@
 FROM alpine:3.10
 
-# The next lines are uncommented for arm32v6/7 builds during the build
-#REMOVEMEINARM32COPY qemu-arm-static /usr/bin/qemu-arm-static
-
 LABEL maintainer="The Paperless Project https://github.com/the-paperless-project/paperless" \
       contributors="Guy Addadi <addadi@gmail.com>, Pit Kleyersburg <pitkley@googlemail.com>, \
         Sven Fischer <git-dev@linux4tw.de>"
