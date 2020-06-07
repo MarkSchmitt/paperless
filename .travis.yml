@@ -33,6 +33,12 @@ matrix:
           name: arm32v7 docker build
           services:
             - docker
+          before_install:
+            - true
+          install:
+            - true
+          after_success:
+            - true
           script:
             - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
             # register binfmt stuff for qemu-static binaries so we can use userland-emulation
@@ -47,6 +53,12 @@ matrix:
           name: arm32v6 docker build # arm32v6 f.e. old raspberry pi (1 and zero)
           services:
             - docker
+          before_install:
+            - true
+          install:
+            - true
+          after_success:
+            - true
           script:
             - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
             # register binfmt stuff for qemu-static binaries so we can use userland-emulation
@@ -62,6 +74,12 @@ matrix:
             - DOCKER_CLI_EXPERIMENTAL=enabled # required for manifest support
           services:
             - docker
+          before_install:
+            - true
+          install:
+            - true
+          after_success:
+            - true
           script:
             - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
             - docker manifest create ${DOCKER_REPO}:${TRAVIS_COMMIT} ${DOCKER_REPO}:${TRAVIS_COMMIT}-amd64 ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm64v8 ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v7 ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v6
