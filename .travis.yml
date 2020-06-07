@@ -15,20 +15,36 @@ matrix:
           name: amd64 docker build
           services:
             - docker
+          before_install:
+            - true
+          install:
+            - true
+          after_success:
+            - true
           script:
             - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
             - docker build -f Dockerfile --tag=${DOCKER_REPO}:${TRAVIS_COMMIT}-amd64 .
             - docker push ${DOCKER_REPO}:${TRAVIS_COMMIT}-amd64
+          on:
+            condition: '"${BUILD_DOCKER}" = 1'
         - stage: build_docker
           name: arm64v8 docker build
           services:
             - docker
+          before_install:
+            - true
+          install:
+            - true
+          after_success:
+            - true
           script:
             - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
             # travis_wait 60 tells travis to wait for up to 60 minutes - default is 20, which is too short
             - travis_wait 60 docker build -f Dockerfile --tag=${DOCKER_REPO}:${TRAVIS_COMMIT}-arm64v8 .
             - docker push ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm64v8
           arch: arm64
+          on:
+            condition: '"${BUILD_DOCKER}" = 1'
         - stage: build_docker
           name: arm32v7 docker build
           services:
@@ -49,6 +65,8 @@ matrix:
             # travis_wait 60 tells travis to wait for up to 60 minutes - default is 20, which is too short
             - travis_wait 60 docker build -f Dockerfile --tag=${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v7 .
             - docker push ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v7
+          on:
+            condition: '"${BUILD_DOCKER}" = 1'
         - stage: build_docker
           name: arm32v6 docker build # arm32v6 f.e. old raspberry pi (1 and zero)
           services:
@@ -69,6 +87,8 @@ matrix:
             # travis_wait 60 tells travis to wait for up to 60 minutes - default is 20, which is too short
             - travis_wait 60 docker build -f Dockerfile --tag=${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v6 .
             - docker push ${DOCKER_REPO}:${TRAVIS_COMMIT}-arm32v6
+          on:
+            condition: '"${BUILD_DOCKER}" = 1'
         - stage: publish_manifest
           env:
             - DOCKER_CLI_EXPERIMENTAL=enabled # required for manifest support
@@ -105,6 +125,8 @@ matrix:
               else
                 echo "Not a tag and not on master, so not pushing tag/master specific manifest"
               fi
+          on:
+            condition: '"${BUILD_DOCKER}" = 1'
 install:
     - pip install --upgrade pip pipenv sphinx
     - pipenv lock -r > requirements.txt
@@ -118,23 +140,3 @@ script:
 
 after_success:
   - coveralls
-
-deploy:
-  - provider: script
-    skip_cleanup: true
-    script: ci/deploy-docker
-    on:
-      tags: true
-      condition: '"${BUILD_DOCKER}" = 1'
-  - provider: script
-    skip_cleanup: true
-    script: ci/deploy-docker
-    on:
-      branch: master
-      condition: '"${BUILD_DOCKER}" = 1'
-  - provider: script
-    skip_cleanup: true
-    script: ci/deploy-docker
-    on:
-      branch: "feature/multi-arch-docker-build"
-      condition: '"${BUILD_DOCKER}" = 1'
